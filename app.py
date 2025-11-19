@@ -13,7 +13,10 @@ app = FastAPI(
     version="1.0"
 )
 
-# Input Schema (with example)
+@app.get("/")
+def home():
+    return {"message": "Water Potability API is running. Visit /docs for API testing."}
+
 class WaterInput(BaseModel):
     ph: float = Field(..., example=7.2)
     Hardness: float = Field(..., example=214.0)
@@ -25,10 +28,8 @@ class WaterInput(BaseModel):
     Trihalomethanes: float = Field(..., example=80.0)
     Turbidity: float = Field(..., example=3.5)
 
-# Prediction Endpoint
 @app.post("/predict")
 def predict_water(data: WaterInput):
-    # Convert input to correct format
     arr = np.array([[  
         data.ph,
         data.Hardness,
@@ -43,7 +44,8 @@ def predict_water(data: WaterInput):
 
     pred = model.predict(arr)[0]
 
-    if pred == 1:
-        return {"prediction": "Water is POTABLE (SAFE to drink)"}
-    else:
-        return {"prediction": "Water is NOT POTABLE (UNSAFE to drink)"}
+    return {
+        "prediction": "Water is POTABLE (SAFE to drink)"
+        if pred == 1
+        else "Water is NOT POTABLE (UNSAFE to drink)"
+    }
